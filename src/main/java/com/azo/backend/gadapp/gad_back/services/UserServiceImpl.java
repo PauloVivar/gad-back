@@ -8,9 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.azo.backend.gadapp.gad_back.models.entities.User;
+import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
 import com.azo.backend.gadapp.gad_back.repositories.UserRepository;
 
-//4. Cuarto Implementación de UserService antes creado(crud)
+//4. Cuarto Implementación de UserService -> volver realidad el CRUD
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -30,16 +31,41 @@ public class UserServiceImpl implements UserService {
     return repository.findById(id);
   }
 
-  //Transactional ya no es solo de lectura ya que save guarda y actualiza
+  //Transactional ya no es readOnly ya que save guarda y actualiza
   @Override
   @Transactional
   public User save(User user) {
     return repository.save(user);
   }
 
+  //Se utiliza UserRequest ya que no se pasa el password
+  @Override
+  @Transactional
+  public Optional<User> update(UserRequest user, Long id) {
+    Optional<User> o = this.findById(id);
+    User userOptional = null;
+    if(o.isPresent()){
+      User userDb = o.orElseThrow();
+      userDb.setUsername(user.getUsername());
+      userDb.setEmail(user.getEmail());
+      userOptional = this.save(userDb);
+    }
+    return Optional.ofNullable(userOptional);
+  }
+  
   @Override
   public void remove(Long id) {
     repository.deleteById(id);
+  }
+
+  @Override
+  public boolean existsByUsername(String username) {
+    return repository.toString().equals(username);
+  }
+
+  @Override
+  public boolean existsByEmail(String email) {
+    return repository.toString().equals(email);
   }
 
 }
