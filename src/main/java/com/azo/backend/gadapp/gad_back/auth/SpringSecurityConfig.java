@@ -41,6 +41,7 @@ public class SpringSecurityConfig {
         //.authorizeHttpRequests()
         .authorizeHttpRequests(authRules -> authRules
             .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
+            //.requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
             .anyRequest().authenticated())
             //.and()
         .addFilter(new JwtAuthenticationFilter(authenticationConfiguration.getAuthenticationManager()))  //para login

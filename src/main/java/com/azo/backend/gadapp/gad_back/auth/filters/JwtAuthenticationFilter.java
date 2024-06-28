@@ -1,7 +1,8 @@
 package com.azo.backend.gadapp.gad_back.auth.filters;
 
 import java.io.IOException;
-import java.util.Base64;
+//import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,10 +65,20 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   @Override
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
       Authentication authResult) throws IOException, ServletException {
+    
     String username = ((org.springframework.security.core.userdetails.User) authResult.getPrincipal())
         .getUsername();
-    String originalInput = SECRET_KEY + "." + username;
-    String token = Base64.getEncoder().encodeToString(originalInput.getBytes());
+
+    // String originalInput = SECRET_KEY + "." + username;
+    // String token = Base64.getEncoder().encodeToString(originalInput.getBytes());
+
+    String token = Jwts.builder()
+        .subject(username)
+        .signWith(SECRET_KEY)
+        .issuedAt(new Date())
+        .expiration(new Date(System.currentTimeMillis() + 3600000))
+        .compact();
+
     response.addHeader(HEADER_AUTHORIZATION, PREFIX_TOKEN + token);
 
     Map<String, Object> body = new HashMap<>();

@@ -1,5 +1,6 @@
 package com.azo.backend.gadapp.gad_back.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,8 +9,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.azo.backend.gadapp.gad_back.models.entities.Role;
 import com.azo.backend.gadapp.gad_back.models.entities.User;
 import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
+import com.azo.backend.gadapp.gad_back.repositories.RoleRepository;
 import com.azo.backend.gadapp.gad_back.repositories.UserRepository;
 
 //4. Cuarto Implementación de UserService -> volver realidad el CRUD
@@ -19,6 +22,9 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   private UserRepository repository;
+
+  @Autowired
+  private RoleRepository repositoryRole;
 
   @Autowired
   private PasswordEncoder passwordEncoder;
@@ -41,6 +47,14 @@ public class UserServiceImpl implements UserService {
   public User save(User user) {
     String passwordBCrypt = passwordEncoder.encode(user.getPassword());
     user.setPassword(passwordBCrypt);
+
+    Optional<Role> o = repositoryRole.findByName("ROLE_USER");
+    List<Role> roles = new ArrayList<>();
+    if(o.isPresent()){
+      roles.add(o.orElseThrow());
+    }
+    user.setRoles(roles);
+
     return repository.save(user);
   }
 
