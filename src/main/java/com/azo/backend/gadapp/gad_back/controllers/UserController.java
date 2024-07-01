@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 //import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.azo.backend.gadapp.gad_back.models.dto.UserDto;
 import com.azo.backend.gadapp.gad_back.models.entities.User;
 import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
 import com.azo.backend.gadapp.gad_back.services.UserService;
@@ -40,7 +41,7 @@ public class UserController {
   private UserService service;
 
   @GetMapping
-  public List<User> list(){
+  public List<UserDto> list(){
     return service.findAll();
   }
 
@@ -53,7 +54,7 @@ public class UserController {
   //get -> orElseThrow()
   @GetMapping("/{id}")
   public ResponseEntity<?> show (@PathVariable Long id){
-    Optional<User> userOptional = service.findById(id);
+    Optional<UserDto> userOptional = service.findById(id);
     if(userOptional.isPresent()){
       return ResponseEntity.ok(userOptional.orElseThrow());
     }
@@ -80,7 +81,7 @@ public class UserController {
     }
 
     // Guardar el usuario si no existe
-    User userDb = service.save(user);
+    UserDto userDb = service.save(user);
     return ResponseEntity.status(HttpStatus.CREATED).body(userDb);
   }
 
@@ -102,7 +103,7 @@ public class UserController {
     if(result.hasErrors()){
       return validation(result);
     }
-    Optional<User> userOptional = service.update(user, id);
+    Optional<UserDto> userOptional = service.update(user, id);
     if(userOptional.isPresent()){
       return ResponseEntity.status(HttpStatus.CREATED).body(userOptional.orElseThrow());
     }
@@ -112,7 +113,7 @@ public class UserController {
   //delete
   @DeleteMapping("/{id}")
   public ResponseEntity<?> remove (@PathVariable Long id){
-    Optional<User> useOptional = service.findById(id);
+    Optional<UserDto> useOptional = service.findById(id);
     if(useOptional.isPresent()){
       service.remove(id);
       return ResponseEntity.noContent().build(); //204

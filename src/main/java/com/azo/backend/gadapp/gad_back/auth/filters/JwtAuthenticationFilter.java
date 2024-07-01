@@ -1,7 +1,7 @@
 package com.azo.backend.gadapp.gad_back.auth.filters;
 
 import java.io.IOException;
-//import java.util.Base64;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.azo.backend.gadapp.gad_back.models.entities.User;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.jsonwebtoken.ClaimsBuilder;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -47,8 +49,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
       user = new ObjectMapper().readValue(request.getInputStream(), User.class);
       username = user.getUsername();
       password = user.getPassword();
-      logger.info("Username desde request InputStream (raw)" + username);
-      logger.info("Password desde request InputStream (raw)" + password);
+      // logger.info("Username desde request InputStream (raw)" + username);
+      // logger.info("Password desde request InputStream (raw)" + password);
 
     } catch (StreamReadException e) {
       e.printStackTrace();
@@ -72,7 +74,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     // String originalInput = SECRET_KEY + "." + username;
     // String token = Base64.getEncoder().encodeToString(originalInput.getBytes());
 
+    Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
+    boolean isAdmin = roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
+
+    ClaimsBuilder claims = Jwts.claims();
+    // claims.put("authorities", new ObjectMapper().writeValueAsString(roles));
+    // claims.put("isAdmin", isAdmin);   
+    claims.add("authorities", new ObjectMapper().writeValueAsString(roles));  //se pasa el objeto roles como json (se utliza ObjectMapper para eso)
+    claims.add("isAdmin", isAdmin);                                           //validar si el role es Admin
+
     String token = Jwts.builder()
+        //.claims(claims)
+        .claims((Map<String, ?>) claims.build())                                  //roles
         .subject(username)
         .signWith(SECRET_KEY)
         .issuedAt(new Date())

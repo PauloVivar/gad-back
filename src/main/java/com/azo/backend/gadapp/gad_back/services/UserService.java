@@ -2,6 +2,8 @@ package com.azo.backend.gadapp.gad_back.services;
 
 import java.util.List;
 import java.util.Optional;
+
+import com.azo.backend.gadapp.gad_back.models.dto.UserDto;
 import com.azo.backend.gadapp.gad_back.models.entities.User;
 import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
 
@@ -10,16 +12,16 @@ import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
 public interface UserService {
 
   //lista data
-  List<User> findAll();
+  List<UserDto> findAll();
 
   //buscar data por id
-  Optional<User> findById(Long id);
+  Optional<UserDto> findById(Long id);
 
   //guardar data
-  User save(User user);
+  UserDto save(User user);
 
   //actualizar data
-  Optional<User> update (UserRequest user, Long id);
+  Optional<UserDto> update (UserRequest user, Long id);
 
   //eliminar data
   void remove(Long id);
