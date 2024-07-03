@@ -63,6 +63,7 @@ public class UserServiceImpl implements UserService {
     String passwordBCrypt = passwordEncoder.encode(user.getPassword());
     user.setPassword(passwordBCrypt);
 
+    //get roles
     List<Role> roles = getRoles(user);
     user.setRoles(roles);
 
@@ -78,6 +79,7 @@ public class UserServiceImpl implements UserService {
     User userOptional = null;
     if(o.isPresent()){
 
+      //get roles
       List<Role> roles = getRoles(user);
 
       User userDb = o.orElseThrow();
@@ -116,7 +118,7 @@ public class UserServiceImpl implements UserService {
     if(user.isAdmin()){
       Optional<Role> oa = repositoryRole.findByName("ROLE_ADMIN");
       if(oa.isPresent()){
-        roles.add(ou.orElseThrow());
+        roles.add(oa.orElseThrow());
       }
     }
     return roles;
