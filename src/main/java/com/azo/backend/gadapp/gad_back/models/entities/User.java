@@ -2,6 +2,8 @@ package com.azo.backend.gadapp.gad_back.models.entities;
 
 import java.util.List;
 
+import com.azo.backend.gadapp.gad_back.models.IUser;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -20,7 +23,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name="users")
-public class User {
+public class User implements IUser {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +51,9 @@ public class User {
   )
   private List<Role> roles;
 
+  //Transient para no mapear este campo en la DB
+  @Transient
+  private boolean admin;
 
   public Long getId() {
     return id;
@@ -78,6 +84,15 @@ public class User {
   }
   public void setRoles(List<Role> roles) {
     this.roles = roles;
+  }
+
+  //Como se implemeta IUser (Interfaz User) indicamos que isAdmin estamos sobre escribiendo
+  @Override
+  public boolean isAdmin() {
+    return admin;
+  }
+  public void setAdmin(boolean admin) {
+    this.admin = admin;
   }
 
 }

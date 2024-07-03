@@ -82,7 +82,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     // claims.put("isAdmin", isAdmin);   
     claims.add("authorities", new ObjectMapper().writeValueAsString(roles));  //se pasa el objeto roles como json (se utliza ObjectMapper para eso)
     claims.add("isAdmin", isAdmin);                                           //validar si el role es Admin
-
+    claims.add("username", username);
+    
     String token = Jwts.builder()
         //.claims(claims)
         .claims((Map<String, ?>) claims.build())                                  //roles

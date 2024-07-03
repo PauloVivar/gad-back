@@ -1,5 +1,7 @@
 package com.azo.backend.gadapp.gad_back.models.request;
 
+import com.azo.backend.gadapp.gad_back.models.IUser;
+
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +9,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 //1.1 Create Clases UserRequest personalización de JSON
 
-public class UserRequest {
+public class UserRequest implements IUser {
 
   @NotBlank(message = "El username es requerido.")
   @Column(unique = true)
@@ -17,6 +19,9 @@ public class UserRequest {
   @Email(message = "Ingrese un email válido.")
   @Column(unique = true)
   private String email;
+
+  //role admin
+  private boolean admin;
 
   public String getUsername() {
     return username;
@@ -32,6 +37,15 @@ public class UserRequest {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  @Override
+  public boolean isAdmin() {
+    return admin;
+  }
+
+  public void setAdmin(boolean admin) {
+    this.admin = admin;
   }
 
 }
