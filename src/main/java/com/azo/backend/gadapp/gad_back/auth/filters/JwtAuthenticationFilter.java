@@ -67,6 +67,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   @Override
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
       Authentication authResult) throws IOException, ServletException {
+
+        //solo pruebas
+        // try {
+        //   Thread.sleep(2000l);
+        // } catch (InterruptedException e) {
+        //   e.printStackTrace();
+        // }
     
     String username = ((org.springframework.security.core.userdetails.User) authResult.getPrincipal())
         .getUsername();

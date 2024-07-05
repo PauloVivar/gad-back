@@ -1,0 +1,9 @@
+spring.application.name=gad-back
+spring.datasource.url=jdbc:postgresql://db-springboot.ct68uew0cd40.us-east-1.rds.amazonaws.com:5433/db_gad_users
+spring.datasource.username=paulov
+spring.datasource.password=paulovroot
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+logging.level.org.hibernate.SQL=debug

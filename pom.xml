@@ -68,10 +68,10 @@
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
 
-    <repository>
+    <!-- <repository>
         <id>central</id>
         <url>https://repo.maven.apache.org/maven2</url>
-    </repository>
+    </repository> -->
 
     <dependency>
         <groupId>io.jsonwebtoken</groupId>

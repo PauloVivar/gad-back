@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -33,16 +36,30 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/api/v1/users")
-@CrossOrigin(origins = "http://localhost:5173/")  //cors
-//@CrossOrigin(originPatterns = "*")
+//@CrossOrigin(origins = "http://localhost:5173/")  //cors
+@CrossOrigin(originPatterns = "*")                  //cors solo pruebas
 public class UserController {
 
   @Autowired
   private UserService service;
 
+  //get
   @GetMapping
   public List<UserDto> list(){
+    //solo pruebas
+    // try {
+    //   Thread.sleep(2000l);
+    // } catch (InterruptedException e) {
+    //   e.printStackTrace();
+    // }
     return service.findAll();
+  }
+
+  //método custom para paginación
+  @GetMapping("/page/{page}")
+  public Page<UserDto> list(@PathVariable Integer page){
+    Pageable pageable = PageRequest.of(page, 5);
+    return service.findAll(pageable);
   }
 
   //***Forma alternativa para el get
@@ -51,7 +68,7 @@ public class UserController {
   //   return service.findById(id).orElseThrow();
   // }
 
-  //get -> orElseThrow()
+  //getById -> orElseThrow()
   @GetMapping("/{id}")
   public ResponseEntity<?> show (@PathVariable Long id){
     Optional<UserDto> userOptional = service.findById(id);
@@ -120,8 +137,6 @@ public class UserController {
     }
     return ResponseEntity.notFound().build();    //404
   }
-
-
 
   //metodo para validar entrada de data
   private ResponseEntity<?> validation(BindingResult result) {
