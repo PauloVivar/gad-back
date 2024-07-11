@@ -50,13 +50,14 @@ public class SpringSecurityConfig {
       .authorizeHttpRequests(authRules -> authRules
         .requestMatchers(HttpMethod.GET, "/api/v1/users", "/api/v1/users/page/{page}").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").hasAnyRole("ADMIN", "USER")
-        .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
+        //.requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
+        .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
         //.requestMatchers("/api/v1/users/*").hasRole("ADMIN")
         .requestMatchers(HttpMethod.DELETE, "/api/v1/users/{id}").hasRole("ADMIN")
         .requestMatchers(HttpMethod.PUT, "/api/v1/users/{id}").hasRole("ADMIN")
         .anyRequest().authenticated())
         //.and()
-      .addFilter(new JwtAuthenticationFilter(authenticationConfiguration.getAuthenticationManager()))      //para login
+      .addFilter(new JwtAuthenticationFilter(authenticationConfiguration.getAuthenticationManager()))      //para 
       .addFilter(new JwtValidationFilter(authenticationConfiguration.getAuthenticationManager()))
       .csrf(config -> config.disable())                                                                    //desabilitar cuanto es API-REST, Monolito viene por defecto
       .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
