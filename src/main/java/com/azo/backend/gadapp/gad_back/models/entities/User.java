@@ -19,7 +19,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
-//1. Primero Create Entidad -> Entidad Usuario
+//1. Primero Crear Entidad -> Entity User
 
 @Entity
 @Table(name="users")
@@ -30,15 +30,16 @@ public class User implements IUser {
   private Long id;
 
   @NotBlank(message = "El username es requerido.")
-  @Column(unique = true)
+  @Column(nullable = false, unique = true)
   private String username;
 
   @NotBlank(message = "El password es requerido.")
+  @Column(nullable = false)
   private String password;
 
   @NotEmpty(message = "El email es requerido.")
   @Email(message = "Ingrese un email válido.")
-  @Column(unique = true)
+  @Column(nullable = false, unique = true)
   private String email;
 
   //Relación muchos a muchos, utilización de tabla ternaria
@@ -55,6 +56,11 @@ public class User implements IUser {
   @Transient
   private boolean admin;
 
+  //Relación Uno a Muchos Terminos y Condiciones
+  //@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  //private List<TermsAcceptance> termsAcceptances;
+  
+  //Getters and Setters
   public Long getId() {
     return id;
   }
@@ -86,7 +92,7 @@ public class User implements IUser {
     this.roles = roles;
   }
 
-  //Como se implemeta IUser (Interfaz User) indicamos que isAdmin estamos sobre escribiendo
+  //Como se implementa IUser (Interfaz User) indicamos que isAdmin estamos sobre escribiendo
   @Override
   public boolean isAdmin() {
     return admin;
@@ -94,5 +100,12 @@ public class User implements IUser {
   public void setAdmin(boolean admin) {
     this.admin = admin;
   }
+
+  // public List<TermsAcceptance> getTermsAcceptances() {
+  //   return termsAcceptances;
+  // }
+  // public void setTermsAcceptances(List<TermsAcceptance> termsAcceptances) {
+  //   this.termsAcceptances = termsAcceptances;
+  // }
 
 }

@@ -14,7 +14,7 @@ import com.azo.backend.gadapp.gad_back.models.entities.User;
 public interface UserRepository extends CrudRepository<User, Long> {
 
   //método custom 2 formas
-  
+
   //1ra. forma -> siguiendo la nomenclatura de Spring boot
   Optional<User> findByUsername(String username);
 

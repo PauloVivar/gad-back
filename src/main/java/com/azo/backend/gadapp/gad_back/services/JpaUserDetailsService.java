@@ -13,11 +13,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.azo.backend.gadapp.gad_back.repositories.UserRepository;
 
-
-//3. Tercero -> Implememhtación de JpaUserDetailsService ROLES
+//3. Tercero -> Implementación de JpaUserDetailsService ROLES
 
 @Service
 public class JpaUserDetailsService implements UserDetailsService {

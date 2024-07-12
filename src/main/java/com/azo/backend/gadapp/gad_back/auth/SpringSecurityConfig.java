@@ -48,13 +48,14 @@ public class SpringSecurityConfig {
     http
       //.authorizeHttpRequests()
       .authorizeHttpRequests(authRules -> authRules
-        .requestMatchers(HttpMethod.GET, "/api/v1/users", "/api/v1/users/page/{page}").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/v1/users", "/api/v1/users/page/{page}", "/api/v1/terms").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").hasAnyRole("ADMIN", "USER")
-        //.requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
         .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
-        //.requestMatchers("/api/v1/users/*").hasRole("ADMIN")
-        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/{id}").hasRole("ADMIN")
-        .requestMatchers(HttpMethod.PUT, "/api/v1/users/{id}").hasRole("ADMIN")
+        .requestMatchers(HttpMethod.POST, "/api/v1/terms").hasRole("ADMIN")
+        .requestMatchers("/api/v1/users/*").hasRole("ADMIN")
+        .requestMatchers("/api/v1/terms/*").hasRole("ADMIN")
+        //.requestMatchers(HttpMethod.DELETE, "/api/v1/users/{id}").hasRole("ADMIN")
+        //.requestMatchers(HttpMethod.PUT, "/api/v1/users/{id}").hasRole("ADMIN")
         .anyRequest().authenticated())
         //.and()
       .addFilter(new JwtAuthenticationFilter(authenticationConfiguration.getAuthenticationManager()))      //para 

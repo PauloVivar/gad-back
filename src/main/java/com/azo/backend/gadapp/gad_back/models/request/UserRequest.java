@@ -20,9 +20,10 @@ public class UserRequest implements IUser {
   @Column(unique = true)
   private String email;
 
-  //role admin
+  //Role admin
   private boolean admin;
 
+  //Getters and Setters
   public String getUsername() {
     return username;
   }

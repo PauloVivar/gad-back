@@ -107,11 +107,13 @@ public class UserServiceImpl implements UserService {
     repository.deleteById(id);
   }
 
+  //validar campos unique
   @Override
   public boolean existsByUsername(String username) {
     return repository.toString().equals(username);
   }
 
+  //validar campos unique
   @Override
   public boolean existsByEmail(String email) {
     return repository.toString().equals(email);

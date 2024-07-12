@@ -15,10 +15,10 @@ import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
 
 public interface UserService {
 
-  //lista data
+  //listar data
   List<UserDto> findAll();
 
-  //método custom para paginación data users
+  //método custom para listar todo con paginación data users
   Page<UserDto> findAll(Pageable pageable);
 
   //buscar data por id
@@ -33,7 +33,7 @@ public interface UserService {
   //eliminar data
   void remove(Long id);
 
-  //test unique
+  //validar campos unique
   boolean existsByUsername(String username);
   boolean existsByEmail(String email);
   
