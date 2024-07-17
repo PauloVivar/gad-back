@@ -83,7 +83,7 @@ public class TermsServiceImpl implements TermsService {
   public void recordTermsInteraction(Long userId, boolean accepted, String ipAddress) {
     Optional<User> ou = userRepository.findById(userId);
     Optional<TermsOfService> latestTermsOpt = getLatestTerms();
-    System.out.println("prueba" + ou + latestTermsOpt);
+    //System.out.println("prueba" + ou + latestTermsOpt);
     
     if (ou.isPresent() && latestTermsOpt.isPresent()) {
         User user = ou.orElseThrow();

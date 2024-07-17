@@ -9,10 +9,10 @@ public class DtoMapperUser {
 
   private User user;
 
-  private DtoMapperUser(){
+  private DtoMapperUser() {
   }
 
-  public static DtoMapperUser builder(){
+  public static DtoMapperUser builder() {
     return new DtoMapperUser();
   }
 

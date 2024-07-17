@@ -48,7 +48,7 @@ public class SpringSecurityConfig {
     http
       //.authorizeHttpRequests()
       .authorizeHttpRequests(authRules -> authRules
-        .requestMatchers(HttpMethod.GET, "/api/v1/users", "/api/v1/users/page/{page}", "/api/v1/terms").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/v1/users", "/api/v1/users/page/{page}", "/api/v1/terms/latest").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").hasAnyRole("ADMIN", "USER")
         .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/v1/terms", "/api/v1/terms/record").hasRole("ADMIN")
