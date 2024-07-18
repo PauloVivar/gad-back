@@ -13,5 +13,8 @@ public interface TermsAcceptanceRepository extends CrudRepository<TermsAcceptanc
   Optional<TermsAcceptance> findTopByUserAndTermsOfServiceOrderByAcceptanceDateDesc(
     User user, 
     TermsOfService termsOfService);
+  
+  //test
+  Optional<TermsAcceptance> findByUserAndTermsOfService(User user, TermsOfService termsOfService);
     
 }

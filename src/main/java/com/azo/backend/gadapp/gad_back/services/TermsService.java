@@ -1,6 +1,7 @@
 package com.azo.backend.gadapp.gad_back.services;
 
 import java.util.Optional;
+
 import com.azo.backend.gadapp.gad_back.models.entities.TermsOfService;
 
 public interface TermsService {

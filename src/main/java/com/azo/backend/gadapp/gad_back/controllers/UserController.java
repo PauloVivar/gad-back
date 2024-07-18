@@ -92,7 +92,7 @@ public class UserController {
       return validation(result);
     }
     
-    // Verificar si el username ya existe en la base de datos - test
+    // Verificar si el username ya existe en la base de datos
     if (service.existsByUsername(user.getUsername())) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Campo ya existe");
     }

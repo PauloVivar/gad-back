@@ -19,8 +19,12 @@ public interface UserRepository extends CrudRepository<User, Long> {
   Optional<User> findByUsername(String username);
 
   //2da. forma -> consulta personalizanda (nombre del método) -> "and u.email=?2" -> en caso de 2do parametro
-  @Query("select u from User u where u.username=?1")
+  @Query("select u from User u where u.username = ?1")
   Optional<User> getUserByUsername(String username);
+
+  //obtener id de user para mandar por el token
+  @Query("select u.id from User u where u.username = ?1")
+  Optional<Long> findIdByUsername(String username);
 
   //3ro. método custom para paginación
   Page<User> findAll(Pageable pageable);

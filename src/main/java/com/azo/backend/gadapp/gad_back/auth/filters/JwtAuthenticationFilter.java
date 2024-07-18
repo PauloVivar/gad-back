@@ -11,9 +11,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.azo.backend.gadapp.gad_back.models.entities.User;
+import com.azo.backend.gadapp.gad_back.repositories.UserRepository;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,10 +33,15 @@ import static com.azo.backend.gadapp.gad_back.auth.TokenJwtConfig.*;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-  private AuthenticationManager authenticationManager;
+  private final UserRepository userRepository;
+  private final AuthenticationManager authenticationManager;
 
-  public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+  //private AuthenticationManager authenticationManager;
+
+  public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
     this.authenticationManager = authenticationManager;
+    this.userRepository = userRepository;
+    setAuthenticationManager(authenticationManager);
   }
 
   @Override
@@ -78,9 +85,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     String username = ((org.springframework.security.core.userdetails.User) authResult.getPrincipal())
         .getUsername();
 
+    //obtener id de user
+    Long userId = getUserIdFromUsername(username);  // Este método necesita ser implementado
+
     // String originalInput = SECRET_KEY + "." + username;
     // String token = Base64.getEncoder().encodeToString(originalInput.getBytes());
-
     Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
     boolean isAdmin = roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
 
@@ -90,6 +99,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     claims.add("authorities", new ObjectMapper().writeValueAsString(roles));  //se pasa el objeto roles como json (se utliza ObjectMapper para eso)
     claims.add("isAdmin", isAdmin);                                           //validar si el role es Admin
     claims.add("username", username);
+    claims.add("userId", userId);                                             //test
     
     String token = Jwts.builder()
         //.claims(claims)
@@ -106,10 +116,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     body.put("token", token);
     body.put("message", String.format("Hola %s, has iniciado sesion satisfactoriamente", username));
     body.put("username", username);
+    body.put("userId", userId);                  // Incluimos el ID del usuario en la respuesta
     response.getWriter().write(new ObjectMapper().writeValueAsString(body));
     response.setStatus(200);
     response.setContentType("application/json");
 
+  }
+
+  private Long getUserIdFromUsername(String username) {
+    return userRepository.findIdByUsername(username)
+        .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
   }
 
   @Override

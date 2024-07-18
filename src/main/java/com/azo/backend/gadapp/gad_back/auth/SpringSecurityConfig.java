@@ -22,6 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 
 import com.azo.backend.gadapp.gad_back.auth.filters.JwtAuthenticationFilter;
 import com.azo.backend.gadapp.gad_back.auth.filters.JwtValidationFilter;
+import com.azo.backend.gadapp.gad_back.repositories.UserRepository;
 
 
 // 1. Primero -> Configuración de Spring Security para Login
@@ -31,6 +32,9 @@ public class SpringSecurityConfig {
 
   @Autowired
   private AuthenticationConfiguration authenticationConfiguration;
+
+  @Autowired
+    private UserRepository userRepository;
 
   @Bean                                                                   //Componente de spring
   PasswordEncoder passwordEncoder(){
@@ -51,14 +55,14 @@ public class SpringSecurityConfig {
         .requestMatchers(HttpMethod.GET, "/api/v1/users", "/api/v1/users/page/{page}", "/api/v1/terms/latest").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").hasAnyRole("ADMIN", "USER")
         .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/v1/terms", "/api/v1/terms/record").hasRole("ADMIN")
+        .requestMatchers(HttpMethod.POST, "/api/v1/terms", "/api/v1/terms/record/*").hasRole("ADMIN")
         .requestMatchers("/api/v1/users/*").hasRole("ADMIN")
         .requestMatchers("/api/v1/terms/*").hasRole("ADMIN")
         //.requestMatchers(HttpMethod.DELETE, "/api/v1/users/{id}").hasRole("ADMIN")
         //.requestMatchers(HttpMethod.PUT, "/api/v1/users/{id}").hasRole("ADMIN")
         .anyRequest().authenticated())
         //.and()
-      .addFilter(new JwtAuthenticationFilter(authenticationConfiguration.getAuthenticationManager()))      //para 
+      .addFilter(new JwtAuthenticationFilter(authenticationConfiguration.getAuthenticationManager(), userRepository))      //para 
       .addFilter(new JwtValidationFilter(authenticationConfiguration.getAuthenticationManager()))
       .csrf(config -> config.disable())                                                                    //desabilitar cuanto es API-REST, Monolito viene por defecto
       .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
