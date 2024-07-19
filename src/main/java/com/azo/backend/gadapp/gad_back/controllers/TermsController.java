@@ -88,17 +88,17 @@ public class TermsController {
 
   // Record user interaction with terms
   @PostMapping("/record")
-    public ResponseEntity<Void> recordTermsInteraction(
-        @RequestParam Long userId,
-        @RequestParam boolean accepted,
-        @RequestParam String ipAddress) {
-      try {
-        service.recordTermsInteraction(userId, accepted, ipAddress);
-        return ResponseEntity.ok().build();
-      } catch (EntityNotFoundException e) {
-          return ResponseEntity.notFound().build();
-      }
+  public ResponseEntity<Void> recordTermsInteraction(
+      @RequestParam Long userId,
+      @RequestParam boolean accepted,
+      @RequestParam String ipAddress) {
+    try {
+      service.recordTermsInteraction(userId, accepted, ipAddress);
+      return ResponseEntity.ok().build();
+    } catch (EntityNotFoundException e) {
+        return ResponseEntity.notFound().build();
     }
+  }
 
   // Check if user has accepted latest terms
   @GetMapping("/status/{userId}")
