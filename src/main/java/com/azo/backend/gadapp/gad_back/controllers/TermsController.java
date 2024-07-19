@@ -29,7 +29,6 @@ public class TermsController {
   // @Autowired
   // private TermsService service;
 
-  //test
   private final TermsService service;
   public TermsController(TermsService service) {
       this.service = service;
