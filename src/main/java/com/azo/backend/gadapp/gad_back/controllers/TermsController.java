@@ -2,7 +2,6 @@ package com.azo.backend.gadapp.gad_back.controllers;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,9 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.azo.backend.gadapp.gad_back.models.dto.TermsInteractionDTO;
 import com.azo.backend.gadapp.gad_back.models.entities.TermsOfService;
 import com.azo.backend.gadapp.gad_back.services.TermsService;
 
@@ -27,8 +26,14 @@ import jakarta.persistence.EntityNotFoundException;
 @CrossOrigin(originPatterns = "*")                  //cors solo pruebas
 public class TermsController {
   
-  @Autowired
-  private TermsService service;
+  // @Autowired
+  // private TermsService service;
+
+  //test
+  private final TermsService service;
+  public TermsController(TermsService service) {
+      this.service = service;
+  }
 
   // READ (all terms) ok
   @GetMapping
@@ -86,18 +91,34 @@ public class TermsController {
       return ResponseEntity.noContent().build();
   }
 
+  // Record user interaction with terms con @RequestParam ejemplo
+  // @PostMapping("/record")
+  // public ResponseEntity<Void> recordTermsInteraction(
+  //     @RequestParam Long userId,
+  //     @RequestParam boolean accepted,
+  //     @RequestParam String ipAddress) {
+  //   try {
+  //     service.recordTermsInteraction(userId, accepted, ipAddress);
+  //     return ResponseEntity.ok().build();
+  //   } catch (EntityNotFoundException e) {
+  //       return ResponseEntity.notFound().build();
+  //   }
+  // }
+
   // Record user interaction with terms
   @PostMapping("/record")
     public ResponseEntity<Void> recordTermsInteraction(
-        @RequestParam Long userId,
-        @RequestParam boolean accepted,
-        @RequestParam String ipAddress) {
-      try {
-        service.recordTermsInteraction(userId, accepted, ipAddress);
-        return ResponseEntity.ok().build();
-      } catch (EntityNotFoundException e) {
-          return ResponseEntity.notFound().build();
-      }
+      @RequestBody TermsInteractionDTO interactionDTO) {
+        try {
+            service.recordTermsInteraction(
+                interactionDTO.getUserId(),
+                interactionDTO.isAccepted(),
+                interactionDTO.getIpAddress()
+            );
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
   // Check if user has accepted latest terms
