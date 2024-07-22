@@ -55,10 +55,6 @@ public class User implements IUser {
   //Transient para no mapear este campo en la DB
   @Transient
   private boolean admin;
-
-  //Relación Uno a Muchos Terminos y Condiciones
-  //@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  //private List<TermsAcceptance> termsAcceptances;
   
   //Getters and Setters
   public Long getId() {
@@ -100,12 +96,5 @@ public class User implements IUser {
   public void setAdmin(boolean admin) {
     this.admin = admin;
   }
-
-  // public List<TermsAcceptance> getTermsAcceptances() {
-  //   return termsAcceptances;
-  // }
-  // public void setTermsAcceptances(List<TermsAcceptance> termsAcceptances) {
-  //   this.termsAcceptances = termsAcceptances;
-  // }
 
 }

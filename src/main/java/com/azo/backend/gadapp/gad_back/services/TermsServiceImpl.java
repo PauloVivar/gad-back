@@ -92,39 +92,19 @@ public class TermsServiceImpl implements TermsService {
         .findByUserAndTermsOfService(user, latestTerms);
     
     if (existingAcceptance.isPresent()) {
-        TermsAcceptance acceptance = existingAcceptance.get();
-        acceptance.setAccepted(accepted);
-        acceptance.setIpAddress(ipAddress);
-        // No necesitamos setAcceptanceDate aquí, se actualizará automáticamente
+      TermsAcceptance acceptance = existingAcceptance.get();
+      acceptance.setAccepted(accepted);
+      acceptance.setIpAddress(ipAddress);
+      // No necesitamos setAcceptanceDate aquí, se actualizará automáticamente
     } else {
-        TermsAcceptance acceptance = new TermsAcceptance();
-        acceptance.setUser(user);
-        acceptance.setTermsOfService(latestTerms);
-        acceptance.setAccepted(accepted);
-        acceptance.setIpAddress(ipAddress);
-        termsAcceptanceRepository.save(acceptance);
+      TermsAcceptance acceptance = new TermsAcceptance();
+      acceptance.setUser(user);
+      acceptance.setTermsOfService(latestTerms);
+      acceptance.setAccepted(accepted);
+      acceptance.setIpAddress(ipAddress);
+      termsAcceptanceRepository.save(acceptance);
     }
-}
-  // public void recordTermsInteraction(Long userId, boolean accepted, String ipAddress) {
-  //   Optional<User> ou = userRepository.findById(userId);
-  //   Optional<TermsOfService> latestTermsOpt = getLatestTerms();
-  //   //System.out.println("prueba" + ou + latestTermsOpt);
-    
-  //   if (ou.isPresent() && latestTermsOpt.isPresent()) {
-  //       User user = ou.orElseThrow();
-  //       TermsOfService latestTerms = latestTermsOpt.orElseThrow();
-        
-  //       TermsAcceptance acceptance = new TermsAcceptance();
-  //       acceptance.setUser(user);
-  //       acceptance.setTermsOfService(latestTerms);
-  //       acceptance.setIpAddress(ipAddress);
-  //       acceptance.setAccepted(accepted);
-
-  //       termsAcceptanceRepository.save(acceptance);
-  //   } else {
-  //       throw new EntityNotFoundException("Usuario o términos más recientes no encontrados");
-  //   }
-  // }
+  }
 
   @Override
   @Transactional

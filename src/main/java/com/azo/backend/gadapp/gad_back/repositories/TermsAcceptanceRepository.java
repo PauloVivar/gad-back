@@ -14,7 +14,8 @@ public interface TermsAcceptanceRepository extends CrudRepository<TermsAcceptanc
     User user, 
     TermsOfService termsOfService);
   
-  //test
   Optional<TermsAcceptance> findByUserAndTermsOfService(User user, TermsOfService termsOfService);
-    
+  
+  //test
+  void deleteByUserId(Long userId);
 }

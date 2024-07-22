@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.azo.backend.gadapp.gad_back.models.dto.UserDto;
+import com.azo.backend.gadapp.gad_back.models.dto.UserRegistrationDTO;
 import com.azo.backend.gadapp.gad_back.models.entities.User;
 import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
 
@@ -27,8 +28,12 @@ public interface UserService {
   //guardar data
   UserDto save(User user);
 
+  //*test guardar data registration
+  UserDto saveRegistration(UserRegistrationDTO userRegistration, String ipAddress);
+
   //actualizar data
   Optional<UserDto> update (UserRequest user, Long id);
+  //Optional<UserDto> update (UserRegistrationDTO user, Long id);
 
   //eliminar data
   void remove(Long id);

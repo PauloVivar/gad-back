@@ -1,10 +1,27 @@
 package com.azo.backend.gadapp.gad_back.models.dto;
 
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 public class UserRegistrationDTO {
 
+  @NotBlank(message = "El username es requerido.")
+  @Column(nullable = false, unique = true)
   private String username;
+
+  @NotBlank(message = "El password es requerido.")
+  @Column(nullable = false)
   private String password;
+
+  @NotEmpty(message = "El email es requerido.")
+  @Email(message = "Ingrese un email válido.")
+  @Column(nullable = false, unique = true)
   private String email;
+
+  @NotNull(message = "La aceptación de los términos de servicio es requerida.")
   private Boolean acceptedTerms;
 
   // Constructor

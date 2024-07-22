@@ -14,11 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.azo.backend.gadapp.gad_back.models.IUser;
 import com.azo.backend.gadapp.gad_back.models.dto.UserDto;
+import com.azo.backend.gadapp.gad_back.models.dto.UserRegistrationDTO;
 import com.azo.backend.gadapp.gad_back.models.dto.mapper.DtoMapperUser;
 import com.azo.backend.gadapp.gad_back.models.entities.Role;
 import com.azo.backend.gadapp.gad_back.models.entities.User;
 import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
 import com.azo.backend.gadapp.gad_back.repositories.RoleRepository;
+import com.azo.backend.gadapp.gad_back.repositories.TermsAcceptanceRepository;
 import com.azo.backend.gadapp.gad_back.repositories.UserRepository;
 
 //4. Cuarto Implementación de UserService -> volver realidad el CRUD
@@ -30,10 +32,17 @@ public class UserServiceImpl implements UserService {
   private UserRepository repository;
 
   @Autowired
-  private RoleRepository repositoryRole;
+  private RoleRepository roleRepository;
+
+  @Autowired
+  private TermsAcceptanceRepository termsAcceptanceRepository;
 
   @Autowired
   private PasswordEncoder passwordEncoder;
+
+  //test
+  @Autowired
+  private TermsService termsService;
 
   @Override
   @Transactional(readOnly = true)
@@ -72,13 +81,40 @@ public class UserServiceImpl implements UserService {
   public UserDto save(User user) {
     String passwordBCrypt = passwordEncoder.encode(user.getPassword());
     user.setPassword(passwordBCrypt);
-
     //get roles
     List<Role> roles = getRoles(user);
     user.setRoles(roles);
-
     return DtoMapperUser.builder().setUser(repository.save(user)).build();
     //return repository.save(user);
+  }
+
+  //test
+  @Override
+  @Transactional
+  public UserDto saveRegistration(UserRegistrationDTO userRegistration, String ipAddress) {
+    if (existsByUsername(userRegistration.getUsername())) {
+          throw new RuntimeException("El nombre de usuario ya existe");
+      }
+      if (existsByEmail(userRegistration.getEmail())) {
+          throw new RuntimeException("El email ya está registrado");
+      }
+
+      User newUser = new User();
+      newUser.setUsername(userRegistration.getUsername());
+      newUser.setPassword(passwordEncoder.encode(userRegistration.getPassword()));
+      newUser.setEmail(userRegistration.getEmail());
+
+      // Asignar rol de usuario por defecto
+      List<Role> roles = new ArrayList<>();
+      roleRepository.findByName("ROLE_USER").ifPresent(roles::add);
+      newUser.setRoles(roles);
+
+      User savedUser = repository.save(newUser);
+
+      // Registrar la aceptación de términos
+      termsService.recordTermsInteraction(savedUser.getId(), true, ipAddress);
+
+      return DtoMapperUser.builder().setUser(savedUser).build();
   }
 
   //Se utiliza UserRequest ya que no se pasa el password
@@ -103,7 +139,11 @@ public class UserServiceImpl implements UserService {
   }
   
   @Override
+  @Transactional
   public void remove(Long id) {
+    // Primero, eliminamos todas las aceptaciones de términos asociadas
+    termsAcceptanceRepository.deleteByUserId(id);
+    // Luego, eliminamos el usuario
     repository.deleteById(id);
   }
 
@@ -121,14 +161,14 @@ public class UserServiceImpl implements UserService {
 
   //logica para asignar o eliminar un usuario como role admin
   private List<Role> getRoles(IUser user){
-    Optional<Role> ou = repositoryRole.findByName("ROLE_USER");
+    Optional<Role> ou = roleRepository.findByName("ROLE_USER");
     List<Role> roles = new ArrayList<>();
     if(ou.isPresent()){
       roles.add(ou.orElseThrow());
     }
 
     if(user.isAdmin()){
-      Optional<Role> oa = repositoryRole.findByName("ROLE_ADMIN");
+      Optional<Role> oa = roleRepository.findByName("ROLE_ADMIN");
       if(oa.isPresent()){
         roles.add(oa.orElseThrow());
       }

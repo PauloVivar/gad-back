@@ -23,10 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.azo.backend.gadapp.gad_back.models.dto.UserDto;
+import com.azo.backend.gadapp.gad_back.models.dto.UserRegistrationDTO;
 import com.azo.backend.gadapp.gad_back.models.entities.User;
 import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
 import com.azo.backend.gadapp.gad_back.services.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PutMapping;
@@ -91,28 +93,56 @@ public class UserController {
     if(result.hasErrors()){
       return validation(result);
     }
-    
     // Verificar si el username ya existe en la base de datos
     if (service.existsByUsername(user.getUsername())) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Campo ya existe");
     }
-
     // Guardar el usuario si no existe
     UserDto userDb = service.save(user);
     return ResponseEntity.status(HttpStatus.CREATED).body(userDb);
   }
 
-  // //post unique
-  // @PostMapping("/register")
-  // public ResponseEntity<?> registerUser (@Valid @RequestBody User user){
-  // // Verificar si el username ya existe en la base de datos
-  // if (service.existsByUsername(user.getUsername())) {
-  //   return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists");
-  // }
-  // // Guardar el usuario si no existe
-  // User userDb = service.save(user);
-  // return ResponseEntity.status(HttpStatus.CREATED).body(userDb);
-  // }
+  //post registration test 
+  @PostMapping("/registration")
+  public ResponseEntity<?> createRegistration (@Valid @RequestBody UserRegistrationDTO userRegistration, 
+                                            BindingResult result,
+                                            HttpServletRequest request) {
+    if (result.hasErrors()) {
+      return validation(result);
+    }
+
+    if (userRegistration.getAcceptedTerms() == null || !userRegistration.getAcceptedTerms()) {
+      return ResponseEntity.badRequest().body("Debe aceptar los términos de servicio para registrarse.");
+    }
+
+    // Verificar si el username ya existe en la base de datos
+    if (service.existsByUsername(userRegistration.getUsername())) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre de usuario ya existe");
+    }
+
+    try {
+      String ipAddress = getIpAddress(request);
+      UserDto user = service.saveRegistration(userRegistration, ipAddress);
+      return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    } catch (RuntimeException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  //obtener ip desde backend
+  private String getIpAddress(HttpServletRequest request) {
+    String ipAddress = request.getHeader("X-Forwarded-For");
+    if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+        ipAddress = request.getHeader("Proxy-Client-IP");
+    }
+    if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+        ipAddress = request.getHeader("WL-Proxy-Client-IP");
+    }
+    if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+        ipAddress = request.getRemoteAddr();
+    }
+    return ipAddress;
+  }
 
   //update
   @PutMapping("/{id}")

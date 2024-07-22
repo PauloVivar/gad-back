@@ -19,6 +19,7 @@ import com.azo.backend.gadapp.gad_back.models.entities.TermsOfService;
 import com.azo.backend.gadapp.gad_back.services.TermsService;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/v1/terms")
@@ -106,19 +107,30 @@ public class TermsController {
 
   // Record user interaction with terms
   @PostMapping("/record")
-    public ResponseEntity<Void> recordTermsInteraction(
-      @RequestBody TermsInteractionDTO interactionDTO) {
-        try {
-            service.recordTermsInteraction(
-                interactionDTO.getUserId(),
-                interactionDTO.isAccepted(),
-                interactionDTO.getIpAddress()
-            );
-            return ResponseEntity.ok().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+  public ResponseEntity<Void> recordTermsInteraction(
+    @RequestBody TermsInteractionDTO interactionDTO, 
+    HttpServletRequest request) {
+    try {
+      String ipAddress = getClientIpAddress(request);
+      service.recordTermsInteraction(
+          interactionDTO.getUserId(),
+          interactionDTO.isAccepted(),
+          ipAddress
+          //interactionDTO.getIpAddress()
+      );
+      return ResponseEntity.ok().build();
+    } catch (EntityNotFoundException e) {
+        return ResponseEntity.notFound().build();
     }
+  }
+
+  private String getClientIpAddress(HttpServletRequest request) {
+    String ipAddress = request.getHeader("X-Forwarded-For");
+    if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+        ipAddress = request.getRemoteAddr();
+    }
+    return ipAddress != null ? ipAddress : "0.0.0.0"; // Valor por defecto si no se puede obtener la IP
+  }
 
   // Check if user has accepted latest terms
   @GetMapping("/status/{userId}")
