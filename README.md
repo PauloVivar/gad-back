@@ -8,5 +8,6 @@ Para configurar las variables de entorno necesarias:
 
 Levantar aplicacion en docker
 1. Compilación: .\mvnw.cmd clean package -DskipTests
-2. Validar imagen docker creada: docker images
-3. Levantar docker desde Dockerfile: docker run -p 8080:8080 afa6fd21178c
+2. Construir imagen de docker: docker build .
+3. Validar imagen docker creada: docker images
+4. Levantar docker desde Dockerfile: docker run -p 8080:8080 afa6fd21178c (ejemplo)
