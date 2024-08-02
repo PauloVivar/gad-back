@@ -41,5 +41,15 @@ public interface UserService {
   //validar campos unique
   boolean existsByUsername(String username);
   boolean existsByEmail(String email);
+
+  //reset password
+  //método para encontrar usuario por email
+  Optional<User> findByEmail(String email);
+
+  //métodos para el restablecimiento de contraseña
+  String createPasswordResetCodeForUser(User user);
+  String validatePasswordResetCode(String code);
+  User getUserByPasswordResetCode(String code);
+  void changeUserPassword(User user, String newPassword);
   
 }

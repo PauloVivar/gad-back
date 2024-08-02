@@ -29,4 +29,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
   //3ro. método custom para paginación
   Page<User> findAll(Pageable pageable);
 
+  //4to. método custom para findByEmail
+  Optional<User> findByEmail(String email);
+
 }

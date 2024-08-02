@@ -1,7 +1,9 @@
 package com.azo.backend.gadapp.gad_back.controllers;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -54,8 +56,11 @@ public class TermsController {
   @GetMapping("/latest")
   public ResponseEntity<TermsOfService> getLatestTerms() {
       Optional<TermsOfService> latestTerms = service.getLatestTerms();
-      return latestTerms.map(ResponseEntity::ok)
-                        .orElse(ResponseEntity.notFound().build());
+      return latestTerms
+              .map(terms -> ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+                .body(terms))
+              .orElse(ResponseEntity.notFound().build());
   }
 
   // READ (version terms) ok
@@ -73,7 +78,7 @@ public class TermsController {
     return new ResponseEntity<>(createdTerms, HttpStatus.CREATED);
   }
 
-  // UPDATE
+  // UPDATE ok
   @PutMapping("/{id}")
   public ResponseEntity<TermsOfService> updateTerms(@PathVariable Long id, @RequestBody TermsOfService termsOfService) {
     try {
@@ -87,8 +92,12 @@ public class TermsController {
   // DELETE
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteTerms(@PathVariable Long id) {
+    try {
       service.deleteTerms(id);
       return ResponseEntity.noContent().build();
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   // Record user interaction with terms con @RequestParam ejemplo
@@ -135,8 +144,14 @@ public class TermsController {
   // Check if user has accepted latest terms
   @GetMapping("/status/{userId}")
   public ResponseEntity<Boolean> checkTermsStatus(@PathVariable Long userId) {
+    try {
       boolean hasAccepted = service.hasUserAcceptedLatestTerms(userId);
-      return ResponseEntity.ok(hasAccepted);
+      return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES))
+                .body(hasAccepted);
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 
 }

@@ -55,6 +55,7 @@ public class SpringSecurityConfig {
         .requestMatchers(HttpMethod.GET, "/api/v1/users", "/api/v1/users/page/{page}", "/api/v1/terms/latest").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").hasAnyRole("ADMIN", "USER")
         .requestMatchers(HttpMethod.GET, "/api/v1/terms/status/{id}").hasAnyRole("ADMIN", "USER")
+        .requestMatchers(HttpMethod.POST, "/api/v1/password/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/v1/users", "/api/v1/users/registration").permitAll()                  //SOLO PRUEBAS
         .requestMatchers(HttpMethod.POST, "/api/v1/terms").hasRole("ADMIN")
         .requestMatchers(HttpMethod.POST, "/api/v1/terms/record").permitAll()

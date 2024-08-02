@@ -1,8 +1,11 @@
 package com.azo.backend.gadapp.gad_back.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,16 +15,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.azo.backend.gadapp.gad_back.auth.TokenJwtConfig;
 import com.azo.backend.gadapp.gad_back.models.IUser;
 import com.azo.backend.gadapp.gad_back.models.dto.UserDto;
 import com.azo.backend.gadapp.gad_back.models.dto.UserRegistrationDTO;
 import com.azo.backend.gadapp.gad_back.models.dto.mapper.DtoMapperUser;
+import com.azo.backend.gadapp.gad_back.models.entities.PasswordResetCode;
 import com.azo.backend.gadapp.gad_back.models.entities.Role;
 import com.azo.backend.gadapp.gad_back.models.entities.User;
 import com.azo.backend.gadapp.gad_back.models.request.UserRequest;
+import com.azo.backend.gadapp.gad_back.repositories.PasswordResetCodeRepository;
 import com.azo.backend.gadapp.gad_back.repositories.RoleRepository;
 import com.azo.backend.gadapp.gad_back.repositories.TermsAcceptanceRepository;
 import com.azo.backend.gadapp.gad_back.repositories.UserRepository;
+
+import io.jsonwebtoken.Jwts;
 
 //4. Cuarto Implementación de UserService -> volver realidad el CRUD
 
@@ -40,9 +48,15 @@ public class UserServiceImpl implements UserService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  //test
   @Autowired
   private TermsService termsService;
+
+  //test
+  @Autowired
+    private PasswordResetCodeRepository passwordResetCodeRepository;
+
+  @Autowired
+  private EmailService emailService;
 
   @Override
   @Transactional(readOnly = true)
@@ -88,7 +102,7 @@ public class UserServiceImpl implements UserService {
     //return repository.save(user);
   }
 
-  //test
+  //guardar users registrados
   @Override
   @Transactional
   public UserDto saveRegistration(UserRegistrationDTO userRegistration, String ipAddress) {
@@ -146,6 +160,90 @@ public class UserServiceImpl implements UserService {
     // Luego, eliminamos el usuario
     repository.deleteById(id);
   }
+
+  //inicio reset password
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<User> findByEmail(String email) {
+      return repository.findByEmail(email);
+  }
+
+  @Override
+  @Transactional
+  public String createPasswordResetCodeForUser(User user) {
+    // Generar código numérico de 6 dígitos
+    String code = generateShortCode();
+
+    // Generar token JWT
+    String token = generateJwtToken(user);
+
+    // Crear y guardar PasswordResetCode
+    PasswordResetCode resetCode = new PasswordResetCode();
+    resetCode.setCode(code);
+    resetCode.setToken(token);
+    resetCode.setUser(user);
+    resetCode.setExpiryDate(LocalDateTime.now().plusHours(1)); // Expira en 1 hora
+    passwordResetCodeRepository.save(resetCode);
+
+    // Enviar código por email
+    emailService.sendPasswordResetEmail(user.getEmail(), code);
+
+    return code;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public String validatePasswordResetCode(String code) {
+      Optional<PasswordResetCode> resetCodeOpt = passwordResetCodeRepository.findByCode(code);
+      if (resetCodeOpt.isEmpty()) {
+          return "invalidCode";
+      }
+      PasswordResetCode resetCode = resetCodeOpt.get();
+      if (resetCode.getExpiryDate().isBefore(LocalDateTime.now())) {
+          return "expired";
+      }
+      return null; // Código válido
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public User getUserByPasswordResetCode(String code) {
+    return passwordResetCodeRepository.findByCode(code)
+            .map(PasswordResetCode::getUser)
+            .orElse(null);
+  }
+
+  private String generateShortCode() {
+    Random random = new Random();
+    int code = 100000 + random.nextInt(900000); // Genera un número entre 100000 y 999999
+    return String.valueOf(code);
+  }
+
+  private String generateJwtToken(User user) {
+    long expirationTime = 3600000; // 1 hora en milisegundos
+    Date expirationDate = new Date(System.currentTimeMillis() + expirationTime);
+
+    return Jwts.builder()
+            .subject(user.getUsername())
+            .claim("userId", user.getId())
+            .claim("purpose", "password_reset")
+            .issuedAt(new Date())
+            .expiration(expirationDate)
+            .signWith(TokenJwtConfig.SECRET_KEY)
+            .compact();
+  }
+
+  // Método para cambiar la contraseña
+  @Override
+  @Transactional
+  public void changeUserPassword(User user, String newPassword) {
+      user.setPassword(passwordEncoder.encode(newPassword));
+      repository.save(user);
+      // Eliminar todos los códigos de restablecimiento para este usuario
+      passwordResetCodeRepository.deleteByUser(user);
+  }
+  //fin reset password
+
 
   //validar campos unique
   @Override
